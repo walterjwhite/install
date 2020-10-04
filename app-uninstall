@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# TODO: chicken/egg
+# configure installation (where to place libraries and executables)
+_CONFIGURATION_FILE=~/.config/walterjwhite/install
+
+. $_CONFIGURATION_FILE
+
+if [ "$#" -lt "1" ]
+then
+    echo "Application name to uninstall is required"
+    exit 1
+fi
+
+_APPLICATION_NAME=$1
+shift
+
+for _BIN in $(cat $_LIBRARY_PATH/$_APPLICATION_NAME/.files)
+do
+    rm -f $_BIN_PATH/$_BIN
+done
+
+rm -Rf $_LIBRARY_PATH/$_APPLICATION_NAME

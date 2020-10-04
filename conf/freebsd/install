@@ -1,0 +1,14 @@
+#!/bin/sh
+
+_LIBRARY_PATH=/usr/local/walterjwhite
+_BIN_PATH=/usr/local/bin
+
+_GNU_SED=gsed
+_GNU_GREP=/usr/local/bin/grep
+
+doLog() {
+    #echo $@
+
+    # syslog
+    logger -i -t $_APPLICATION_NAME $@
+}

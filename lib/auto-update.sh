@@ -1,0 +1,82 @@
+#!/bin/sh
+
+_CONFIGURATION_FILE=~/.config/walterjwhite/install
+_LAST_UPDATE_DATE_PATH=_LIBRARY_PATH_/$_APPLICATION_NAME/.lastUpdateDate
+
+. $_CONFIGURATION_FILE
+
+# move to conf
+_CHECK_FREQUENCY=daily
+_TIMESTAMP_FORMAT="+%Y%m%d%H%M%S"
+
+_updateCheck() {
+    _is_check
+    if [ "$?" -eq "0" ]
+    then
+        return
+    fi
+
+    _LATEST_APPLICATION_VERSION=$(git ls-remote $_APPLICATION_GIT_URL | head -1 | awk {'print$1'})
+    _INSTALLED_APPLICATION_VERSION=$(echo $_APPLICATION_VERSION | cut -d'.' -f2)
+
+    if [ "$_LATEST_APPLICATION_VERSION" != "$_INSTALLED_APPLICATION_VERSION" ]
+    then
+        _update
+    fi
+
+    # update last update date
+    echo "Recording last update date"
+    echo $(date $_TIMESTAMP_FORMAT) | $_SUDO_PROGRAM tee $_LAST_UPDATE_DATE_PATH > /dev/null
+}
+
+
+_is_check() {
+    if [ ! -e $_LAST_UPDATE_DATE_PATH ]
+    then
+        return 1
+    fi
+
+    _LAST_UPDATED=$(cat $_LAST_UPDATE_DATE_PATH)
+    case $_CHECK_FREQUENCY in
+        daily)
+            _EXPIRATION=$(date -v-1d $_TIMESTAMP_FORMAT)
+            ;;
+        weekly)
+            _EXPIRATION=$(date -v-1w $_TIMESTAMP_FORMAT)
+            ;;
+        monthly)
+            _EXPIRATION=$(date -v-1m $_TIMESTAMP_FORMAT)
+            ;;
+        hourly)
+            _EXPIRATION=$(date -v-1H $_TIMESTAMP_FORMAT)
+            ;;
+    esac
+
+    return $(echo "$_LAST_UPDATED < $_EXPIRATION" | bc)
+}
+
+_update() {
+    if [ -z "$_AUTO_UPDATE" ]
+    then
+        # TODO: use continueif
+        echo "$_LATEST_APPLICATION_VERSION is available ($_INSTALLED_APPLICATION_VERSION), upgrade Y/n?"
+        read _UPGRADE
+
+        if [ "$_UPGRADE" = "Y" ]
+        then
+            _do_update
+        fi
+    else
+        _do_update
+    fi
+}
+
+_do_update() {
+    echo "Attempting to update"
+    $_SUDO_PROGRAM app-install $_APPLICATION_GIT_URL
+}
+
+if [ -n "$_UPDATE_CHECK" ]
+then
+    _updateCheck
+fi
