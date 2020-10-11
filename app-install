@@ -29,7 +29,7 @@ _remote() {
 
 _settings() {
     _APPLICATION_NAME=$(basename $(pwd))
-    _APPLICATION_VERSION=$(gcb).$(gh)
+    _APPLICATION_VERSION=$(git branch --no-color --show-current).$(git rev-parse HEAD)
     _APPLICATION_BUILD_DATE=$(git log --format=%cd -1)
     _APPLICATION_INSTALL_DATE=$(date)
     _APPLICATION_DATA_PATH='~/.data/'$_APPLICATION_NAME
@@ -61,7 +61,11 @@ _update() {
 }
 
 _prepare_target() {
-    rm -rf $_LIBRARY_PATH/$_APPLICATION_NAME
+    if [ -e $_LIBRARY_PATH/$_APPLICATION_NAME ]
+    then
+        app-uninstall $_APPLICATION_NAME
+    fi
+
     mkdir -p $_LIBRARY_PATH/$_APPLICATION_NAME
 }
 
@@ -91,9 +95,19 @@ _metadata() {
     echo "_APPLICATION_DATA_PATH=\"$_APPLICATION_DATA_PATH\""       >> $_APPLICATION_METADATA_PATH
     echo "_APPLICATION_CONFIG_PATH=\"$_APPLICATION_CONFIG_PATH\""   >> $_APPLICATION_METADATA_PATH
     echo "_APPLICATION_GIT_URL=\"$_APPLICATION_GIT_URL\""           >> $_APPLICATION_METADATA_PATH
+
+    # copied from auto-update.sh (TODO: import)
+    _TIMESTAMP_FORMAT="+%Y%m%d%H%M%S"
+    echo $(date $_TIMESTAMP_FORMAT) > $_LIBRARY_PATH/$_APPLICATION_NAME/.lastUpdateDate
 }
 
 _inject() {
+    if [ -e .no-inject ]
+    then
+        echo "Not injecting values"
+        return
+    fi
+
     # ensure all executables auto-update
     $_GNU_SED -i "1 a . $_LIBRARY_PATH/install/auto-update.sh" $_APPLICATION_TEMP_PATH/bin/*
 
@@ -139,6 +153,7 @@ _setup_project() {
     _prepare_work
 
     _settings
+
     _sed_safe
     _prepare_target
     _update
@@ -158,7 +173,7 @@ if [ "$#" -gt "0" ]
 then
     for _APP in $@
     do
-        _remote
+        _remote $_APP
     done
 else
     _setup_project
