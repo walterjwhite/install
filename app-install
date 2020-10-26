@@ -12,6 +12,15 @@ fi
 
 . $_CONFIGURATION_FILE
 
+if [ -n "$ROOT" ]
+then
+    _INSTALL_BIN_PATH=$ROOT/$_BIN_PATH
+    _INSTALL_LIBRARY_PATH=$ROOT/$_LIBRARY_PATH
+else
+    _INSTALL_BIN_PATH=$_BIN_PATH
+    _INSTALL_LIBRARY_PATH=$_LIBRARY_PATH
+fi
+
 _remote() {
     _INSTALL_PATH=$(mktemp -d)
 
@@ -61,12 +70,12 @@ _update() {
 }
 
 _prepare_target() {
-    if [ -e $_LIBRARY_PATH/$_APPLICATION_NAME ]
+    if [ -e $_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME ]
     then
         app-uninstall $_APPLICATION_NAME
     fi
 
-    mkdir -p $_LIBRARY_PATH/$_APPLICATION_NAME
+    mkdir -p $_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME
 }
 
 _prepare_work() {
@@ -76,6 +85,7 @@ _prepare_work() {
 
     if [ -e bin ]
     then
+        chmod +x bin/*
         cp -R bin $_APPLICATION_TEMP_PATH
     fi
 
@@ -83,10 +93,15 @@ _prepare_work() {
     then
         cp -R lib $_APPLICATION_TEMP_PATH
     fi
+
+    if [ -e help ]
+    then
+        cp -R help $_APPLICATION_TEMP_PATH
+    fi
 }
 
 _metadata() {
-     _APPLICATION_METADATA_PATH=$_LIBRARY_PATH/$_APPLICATION_NAME/.application
+     _APPLICATION_METADATA_PATH=$_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME/.application
 
     echo "_APPLICATION_NAME=$_APPLICATION_NAME"                      > $_APPLICATION_METADATA_PATH
     echo "_APPLICATION_VERSION=$_APPLICATION_VERSION"               >> $_APPLICATION_METADATA_PATH
@@ -98,7 +113,7 @@ _metadata() {
 
     # copied from auto-update.sh (TODO: import)
     _TIMESTAMP_FORMAT="+%Y%m%d%H%M%S"
-    echo $(date $_TIMESTAMP_FORMAT) > $_LIBRARY_PATH/$_APPLICATION_NAME/.lastUpdateDate
+    echo $(date $_TIMESTAMP_FORMAT) > $_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME/.lastUpdateDate
 }
 
 _inject() {
@@ -107,6 +122,9 @@ _inject() {
         echo "Not injecting values"
         return
     fi
+
+    # ensure all executables automatically print help
+    $_GNU_SED -i "1 a . $_LIBRARY_PATH/install/help.sh" $_APPLICATION_TEMP_PATH/bin/*
 
     # ensure all executables auto-update
     $_GNU_SED -i "1 a . $_LIBRARY_PATH/install/auto-update.sh" $_APPLICATION_TEMP_PATH/bin/*
@@ -119,12 +137,18 @@ _inject() {
 }
 
 _install() {
+    # install help files
+    if [ -e $_APPLICATION_TEMP_PATH/help ]
+    then
+        mv $_APPLICATION_TEMP_PATH/help $_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME
+    fi
+
     # move modified artifacts to target
-    mv $_APPLICATION_TEMP_PATH/bin/* $_BIN_PATH
+    mv $_APPLICATION_TEMP_PATH/bin/* $_INSTALL_BIN_PATH
 
     if [ -e $_APPLICATION_TEMP_PATH/lib ] && [ "$(ls $_APPLICATION_TEMP_PATH/lib | wc -l)" -gt "0" ]
     then
-        mv $_APPLICATION_TEMP_PATH/lib/* $_LIBRARY_PATH/$_APPLICATION_NAME
+        mv $_APPLICATION_TEMP_PATH/lib/* $_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME
     fi
 }
 
@@ -132,7 +156,9 @@ _file_listing() {
     PWD=$(pwd)
 
     cd $_APPLICATION_TEMP_PATH/bin
-    find . -type f | sed -e "s/^\.\///" >> $_LIBRARY_PATH/$_APPLICATION_NAME/.files
+
+    # this should be renamed to .bin
+    find . -type f | sed -e "s/^\.\///" >> $_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME/.files
 
     cd $PWD
 }

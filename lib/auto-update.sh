@@ -1,13 +1,9 @@
 #!/bin/sh
 
-_CONFIGURATION_FILE=~/.config/walterjwhite/install
+_TIMESTAMP_FORMAT="+%Y%m%d%H%M%S"
 _LAST_UPDATE_DATE_PATH=_LIBRARY_PATH_/$_APPLICATION_NAME/.lastUpdateDate
 
-. $_CONFIGURATION_FILE
-
-# move to conf
-_CHECK_FREQUENCY=daily
-_TIMESTAMP_FORMAT="+%Y%m%d%H%M%S"
+optionalInclude _APPLICATION_CONFIG_PATH_
 
 _updateCheck() {
     _is_check
@@ -28,7 +24,6 @@ _updateCheck() {
     echo "Recording last update date"
     echo $(date $_TIMESTAMP_FORMAT) | $_SUDO_PROGRAM tee $_LAST_UPDATE_DATE_PATH > /dev/null
 }
-
 
 _is_check() {
     if [ ! -e $_LAST_UPDATE_DATE_PATH ]
@@ -79,4 +74,6 @@ _do_update() {
 if [ -n "$_UPDATE_CHECK" ]
 then
     _updateCheck
+else
+    warn "Auto-update is disabled"
 fi

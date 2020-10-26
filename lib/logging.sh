@@ -1,26 +1,52 @@
 #!/bin/sh
 
-. _APPLICATION_CONFIG_PATH_
-
 if [ -n "$_DEBUG" ]
 then
-    doLog "Application Name: $_APPLICATION_NAME:$_APPLICATION_VERSION" "$_APPLICATION_BUILD_DATE / $_APPLICATION_INSTALL_DATE @ $_APPLICATION_DATA_PATH"
+    echo "Application Name: $_APPLICATION_NAME:$_APPLICATION_VERSION" "$_APPLICATION_BUILD_DATE / $_APPLICATION_INSTALL_DATE @ $_APPLICATION_DATA_PATH"
     set -x
 fi
 
+optionalInclude() {
+    if [ -e $1 ]
+    then
+        . $1
+    else
+        warn "$1 does NOT exist"
+    fi
+}
+
 exitWithError() {
-    >&2 echo $1
+    _ERROR=$2
+
+    >&2 printf "\033[0;31m$1\033[0m\n"
     exit $2
 }
 
 exitSuccess() {
-    echo $1
+    printf "\033[0;32m$1\033[0m\n"
     exit 0
 }
 
-_() {
-    doLog $@
+warn() {
+    printf "\033[1;33m$1\033[0m\n"
+}
 
+_require() {
+    if [ -z "$1" ]
+    then
+        exitWithError "$2 required" $3
+    fi
+}
+
+_read_if() {
+    if [ -z "$1" ]
+    then
+        echo "Enter $2"
+        read $3
+    fi
+}
+
+_() {
     if [ -z "$_DRY_RUN" ]
     then
         $@
@@ -30,5 +56,7 @@ _() {
         then
             exitWithError "Previous cmd failed" $_exitStatus
         fi
+    else
+        echo $@
     fi
 }
