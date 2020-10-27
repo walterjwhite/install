@@ -98,6 +98,11 @@ _prepare_work() {
     then
         cp -R help $_APPLICATION_TEMP_PATH
     fi
+
+    if [ -e .setup ]
+    then
+        cp -R .setup $_APPLICATION_TEMP_PATH
+    fi
 }
 
 _metadata() {
@@ -164,9 +169,9 @@ _file_listing() {
 }
 
 _setup() {
-    if [ -e .setup ]
+    if [ -e $_APPLICATION_TEMP_PATH/.setup ]
     then
-        find .setup -type f\
+        find $_APPLICATION_TEMP_PATH/.setup -type f\
         | xargs -L 1 -I _F_ sh _F_
     fi
 }
