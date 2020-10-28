@@ -17,6 +17,7 @@ then
     _INSTALL_BIN_PATH=$ROOT/$_BIN_PATH
     _INSTALL_LIBRARY_PATH=$ROOT/$_LIBRARY_PATH
 else
+    ROOT=/
     _INSTALL_BIN_PATH=$_BIN_PATH
     _INSTALL_LIBRARY_PATH=$_LIBRARY_PATH
 fi
@@ -103,6 +104,11 @@ _prepare_work() {
     then
         cp -R .setup $_APPLICATION_TEMP_PATH
     fi
+
+    if [ -e files ]
+    then
+        cp -R files $_APPLICATION_TEMP_PATH
+    fi
 }
 
 _metadata() {
@@ -149,23 +155,28 @@ _install() {
     fi
 
     # move modified artifacts to target
+    mkdir -p $_INSTALL_BIN_PATH
     mv $_APPLICATION_TEMP_PATH/bin/* $_INSTALL_BIN_PATH
 
     if [ -e $_APPLICATION_TEMP_PATH/lib ] && [ "$(ls $_APPLICATION_TEMP_PATH/lib | wc -l)" -gt "0" ]
     then
+        mkdir -p $_INSTALL_LIBRARY_PATH
         mv $_APPLICATION_TEMP_PATH/lib/* $_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME
+    fi
+
+    if [ -e $_APPLICATION_TEMP_PATH/files ] && [ "$(ls $_APPLICATION_TEMP_PATH/files | wc -l)" -gt "0" ]
+    then
+        tar cpf - -C $_APPLICATION_TEMP_PATH/files . | tar xpf - -C $ROOT
     fi
 }
 
 _file_listing() {
-    PWD=$(pwd)
-
     cd $_APPLICATION_TEMP_PATH/bin
 
     # this should be renamed to .bin
     find . -type f | sed -e "s/^\.\///" >> $_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME/.files
 
-    cd $PWD
+    cd $OLDPWD
 }
 
 _setup() {
@@ -180,7 +191,28 @@ _cleanup() {
     rm -rf $_APPLICATION_TEMP_PATH
 }
 
+_dependencies() {
+    if [ "$_APPLICATION_NAME" == "install" ]
+    then
+        return
+    fi
+
+    echo "Working on dependencies"
+    if [ -e dependencies ]
+    then
+        echo "Installing dependencies"
+
+        # /usr/local/bin/grep
+        for _DEPENDENCY in $($_GNU_GREP -Pv "(^$|^#)" dependencies)
+        do
+            _remote $_DEPENDENCY
+        done
+    fi
+}
+
 _setup_project() {
+    _PROJECT_PATH=$(pwd)
+
     _prepare_work
 
     _settings
@@ -198,6 +230,8 @@ _setup_project() {
     _setup
 
     _cleanup
+
+    _dependencies
 }
 
 if [ "$#" -gt "0" ]
