@@ -60,3 +60,7 @@ _() {
         echo $@
     fi
 }
+
+_in_data_path() {
+    return $(pwd | grep -c $_DATA_PATH)
+}
