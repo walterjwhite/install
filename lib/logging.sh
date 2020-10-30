@@ -51,10 +51,15 @@ _() {
     then
         $@
 
-        _exitStatus=$?
+        local _exitStatus=$?
         if [ "$_exitStatus" -gt "0" ]
         then
-            exitWithError "Previous cmd failed" $_exitStatus
+            if [ -z "$WARN_ON_ERROR" ]
+            then
+                exitWithError "Previous cmd failed" $_exitStatus
+            else
+                warn "Previous cmd failed - $@ - $_exitStatus"
+            fi
         fi
     else
         echo $@

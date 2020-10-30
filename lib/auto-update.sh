@@ -3,6 +3,7 @@
 _TIMESTAMP_FORMAT="+%Y%m%d%H%M%S"
 _LAST_UPDATE_DATE_PATH=_LIBRARY_PATH_/$_APPLICATION_NAME/.lastUpdateDate
 
+_CHECK_FREQUENCY=daily
 optionalInclude _APPLICATION_CONFIG_PATH_
 
 _updateCheck() {
@@ -45,7 +46,14 @@ _is_check() {
         hourly)
             _EXPIRATION=$(date -v-1H $_TIMESTAMP_FORMAT)
             ;;
+        *)
+            warn "Unknown _CHECK_FREQUENCY $_CHECK_FREQUENCY"
+            return 1
+            ;;
     esac
+
+    _require "$_LAST_UPDATED" "Last Updated" 3
+    _require "$_EXPIRATION" "Expiration" 4
 
     return $(echo "$_LAST_UPDATED < $_EXPIRATION" | bc)
 }
@@ -54,10 +62,10 @@ _update() {
     if [ -z "$_AUTO_UPDATE" ]
     then
         # TODO: use continueif
-        echo "$_LATEST_APPLICATION_VERSION is available ($_INSTALLED_APPLICATION_VERSION), upgrade Y/n?"
+        warn "$_LATEST_APPLICATION_VERSION is available ($_INSTALLED_APPLICATION_VERSION), upgrade Y/n?"
         read _UPGRADE
 
-        if [ "$_UPGRADE" = "Y" ]
+        if [ "$_UPGRADE" != "n" ]
         then
             _do_update
         fi
