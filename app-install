@@ -236,6 +236,8 @@ _setup_project() {
     _cleanup
 
     _dependencies
+
+    echo "$_APPLICATION_NAME - Completed installation"
 }
 
 if [ "$#" -gt "0" ]

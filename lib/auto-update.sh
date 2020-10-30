@@ -62,7 +62,7 @@ _update() {
     if [ -z "$_AUTO_UPDATE" ]
     then
         # TODO: use continueif
-        warn "$_LATEST_APPLICATION_VERSION is available ($_INSTALLED_APPLICATION_VERSION), upgrade Y/n?"
+        warn "($_APPLICATION_NAME) $_LATEST_APPLICATION_VERSION is available ($_INSTALLED_APPLICATION_VERSION), upgrade Y/n?"
         read _UPGRADE
 
         if [ "$_UPGRADE" != "n" ]
