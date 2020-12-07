@@ -159,7 +159,7 @@ _dependencies() {
         # /usr/local/bin/grep
         for _DEPENDENCY in $($_GNU_GREP -Pv "(^$|^#)" dependencies)
         do
-            _remote $_DEPENDENCY
+            _setup_project $_DEPENDENCY
         done
     fi
 }
