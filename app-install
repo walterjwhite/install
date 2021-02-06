@@ -3,215 +3,217 @@
 # configure installation (where to place libraries and executables)
 _CONFIGURATION_FILE=~/.config/walterjwhite/install
 
-if [ ! -e $_APPLICATION_CONFIG_PATH ]
-then
-    echo "$_CONFIGURATION_FILE does NOT exist"
-    exit 1
+#if [ ! -e $_APPLICATION_CONFIG_PATH ]; then
+if [ ! -e $_CONFIGURATION_FILE ]; then
+	echo "$_CONFIGURATION_FILE ($_APPLICATION_CONFIG_PATH) does NOT exist"
+	exit 1
 fi
 
 . $_CONFIGURATION_FILE
 
-if [ -n "$ROOT" ]
-then
-    _INSTALL_BIN_PATH=$ROOT/$_BIN_PATH
-    _INSTALL_LIBRARY_PATH=$ROOT/$_LIBRARY_PATH
+if [ -n "$ROOT" ]; then
+	_INSTALL_BIN_PATH=$ROOT/$_BIN_PATH
+	_INSTALL_LIBRARY_PATH=$ROOT/$_LIBRARY_PATH
 else
-    ROOT=/
-    _INSTALL_BIN_PATH=$_BIN_PATH
-    _INSTALL_LIBRARY_PATH=$_LIBRARY_PATH
+	ROOT=/
+	_INSTALL_BIN_PATH=$_BIN_PATH
+	_INSTALL_LIBRARY_PATH=$_LIBRARY_PATH
 fi
 
 _settings() {
-    _APPLICATION_NAME=$(basename $PWD)
-    _APPLICATION_VERSION=$(git branch --no-color --show-current).$(git rev-parse HEAD)
-    _APPLICATION_BUILD_DATE=$(git log --format=%cd -1)
-    _APPLICATION_INSTALL_DATE=$(date)
-    _DATA_PATH="\$HOME/.data"
-    _APPLICATION_DATA_PATH=$_DATA_PATH/$_APPLICATION_NAME
-    _APPLICATION_CONFIG_PATH="\$HOME/.config/walterjwhite/$_APPLICATION_NAME"
-    _APPLICATION_GIT_URL=$(git remote -v | awk {'print$2'} | head -1)
+	_APPLICATION_NAME=$(basename $PWD)
+	_APPLICATION_VERSION=$(git branch --no-color --show-current).$(git rev-parse HEAD)
+	_APPLICATION_BUILD_DATE=$(git log --format=%cd -1)
 
-    export _LIBRARY_PATH _APPLICATION_NAME _APPLICATION_VERSION _APPLICATION_BUILD_DATE\
-         _APPLICATION_INSTALL_DATE _DATA_PATH _APPLICATION_DATA_PATH _APPLICATION_CONFIG_PATH _APPLICATION_GIT_URL
+	# NOTE: git date format is different from this format
+	_APPLICATION_INSTALL_DATE=$(date +"%a %b %d %H:%M:%S %Y %z")
+
+	_DATA_PATH="\$HOME/.data"
+	_APPLICATION_DATA_PATH=$_DATA_PATH/$_APPLICATION_NAME
+	_APPLICATION_CONFIG_PATH="\$HOME/.config/walterjwhite/$_APPLICATION_NAME"
+	_APPLICATION_GIT_URL=$(git remote -v | awk {'print$2'} | head -1)
+
+	export _LIBRARY_PATH _APPLICATION_NAME _APPLICATION_VERSION _APPLICATION_BUILD_DATE \
+		_APPLICATION_INSTALL_DATE _DATA_PATH _APPLICATION_DATA_PATH _APPLICATION_CONFIG_PATH _APPLICATION_GIT_URL
 }
 
 _sed_safe() {
-    _SED_LIBRARY_PATH=$(echo $_LIBRARY_PATH | sed -e "s/\//\\\\\//g")
+	_SED_LIBRARY_PATH=$(echo $_LIBRARY_PATH | sed -e "s/\//\\\\\//g")
 
-    _SED_APPLICATION_DATA_PATH_=$(echo $_APPLICATION_DATA_PATH | sed -e "s/\//\\\\\//g")
-    _SED_APPLICATION_CONFIG_PATH_=$(echo $_APPLICATION_CONFIG_PATH | sed -e "s/\//\\\\\//g")
+	_SED_APPLICATION_DATA_PATH_=$(echo $_APPLICATION_DATA_PATH | sed -e "s/\//\\\\\//g")
+	_SED_APPLICATION_CONFIG_PATH_=$(echo $_APPLICATION_CONFIG_PATH | sed -e "s/\//\\\\\//g")
 }
 
 _update() {
-    _FILES_TO_PROCESS=$(find $_APPLICATION_TEMP_PATH -type f | grep -v "^\.")
+	_FILES_TO_PROCESS=$(find $_APPLICATION_TEMP_PATH -type f | grep -v "^\.")
 
-    $_GNU_SED -i "s/_LIBRARY_PATH_/$_SED_LIBRARY_PATH/g"                        $_FILES_TO_PROCESS
+	$_GNU_SED -i "s/_LIBRARY_PATH_/$_SED_LIBRARY_PATH/g" $_FILES_TO_PROCESS
 
-    $_GNU_SED -i "s/_APPLICATION_NAME_/$_APPLICATION_NAME/g"                    $_FILES_TO_PROCESS
-    $_GNU_SED -i "s/_APPLICATION_VERSION_/$_APPLICATION_VERSION/g"              $_FILES_TO_PROCESS
-    $_GNU_SED -i "s/_APPLICATION_BUILD_DATE_/$_APPLICATION_BUILD_DATE/g"        $_FILES_TO_PROCESS
-    $_GNU_SED -i "s/_APPLICATION_INSTALL_DATE_/$_APPLICATION_INSTALL_DATE/g"    $_FILES_TO_PROCESS
+	$_GNU_SED -i "s/_APPLICATION_NAME_/$_APPLICATION_NAME/g" $_FILES_TO_PROCESS
+	$_GNU_SED -i "s/_APPLICATION_VERSION_/$_APPLICATION_VERSION/g" $_FILES_TO_PROCESS
+	$_GNU_SED -i "s/_APPLICATION_BUILD_DATE_/$_APPLICATION_BUILD_DATE/g" $_FILES_TO_PROCESS
+	$_GNU_SED -i "s/_APPLICATION_INSTALL_DATE_/$_APPLICATION_INSTALL_DATE/g" $_FILES_TO_PROCESS
 
-    $_GNU_SED -i "s/_APPLICATION_DATA_PATH_/$_SED_APPLICATION_DATA_PATH_/g"     $_FILES_TO_PROCESS
-    $_GNU_SED -i "s/_DATA_PATH_/$_SED_APPLICATION_DATA_PATH_/g"                 $_FILES_TO_PROCESS
-    $_GNU_SED -i "s/_APPLICATION_CONFIG_PATH_/$_SED_APPLICATION_CONFIG_PATH_/g" $_FILES_TO_PROCESS
+	$_GNU_SED -i "s/_APPLICATION_DATA_PATH_/$_SED_APPLICATION_DATA_PATH_/g" $_FILES_TO_PROCESS
+	$_GNU_SED -i "s/_DATA_PATH_/$_SED_APPLICATION_DATA_PATH_/g" $_FILES_TO_PROCESS
+	$_GNU_SED -i "s/_APPLICATION_CONFIG_PATH_/$_SED_APPLICATION_CONFIG_PATH_/g" $_FILES_TO_PROCESS
 }
 
 _prepare_target() {
-    if [ -e $_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME ]
-    then
-        app-uninstall $_APPLICATION_NAME
-    fi
+	if [ -e $_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME ]; then
+		app-uninstall $_APPLICATION_NAME
+	fi
 
-    mkdir -p $_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME
+	mkdir -p $_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME
 }
 
 _metadata() {
-    _APPLICATION_METADATA_PATH=$_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME/.application
-    _APPLICATION_LAST_UPDATE_DATE_PATH=$_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME/.lastUpdateDate
+	_APPLICATION_METADATA_PATH=$_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME/.application
+	_APPLICATION_LAST_UPDATE_DATE_PATH=$_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME/.lastUpdateDate
 
-    echo "_APPLICATION_NAME=$_APPLICATION_NAME"                      > $_APPLICATION_METADATA_PATH
-    echo "_APPLICATION_VERSION=$_APPLICATION_VERSION"               >> $_APPLICATION_METADATA_PATH
-    echo "_APPLICATION_BUILD_DATE=\"$_APPLICATION_BUILD_DATE\""     >> $_APPLICATION_METADATA_PATH
-    echo "_APPLICATION_INSTALL_DATE=\"$_APPLICATION_INSTALL_DATE\"" >> $_APPLICATION_METADATA_PATH
-    echo "_DATA_PATH=\"$_DATA_PATH\""                               >> $_APPLICATION_METADATA_PATH
-    echo "_APPLICATION_DATA_PATH=\"$_APPLICATION_DATA_PATH\""       >> $_APPLICATION_METADATA_PATH
-    echo "_APPLICATION_CONFIG_PATH=\"$_APPLICATION_CONFIG_PATH\""   >> $_APPLICATION_METADATA_PATH
-    echo "_APPLICATION_GIT_URL=\"$_APPLICATION_GIT_URL\""           >> $_APPLICATION_METADATA_PATH
+	echo "_APPLICATION_NAME=$_APPLICATION_NAME" >$_APPLICATION_METADATA_PATH
+	echo "_APPLICATION_VERSION=$_APPLICATION_VERSION" >>$_APPLICATION_METADATA_PATH
+	echo "_APPLICATION_BUILD_DATE=\"$_APPLICATION_BUILD_DATE\"" >>$_APPLICATION_METADATA_PATH
+	echo "_APPLICATION_INSTALL_DATE=\"$_APPLICATION_INSTALL_DATE\"" >>$_APPLICATION_METADATA_PATH
+	echo "_DATA_PATH=\"$_DATA_PATH\"" >>$_APPLICATION_METADATA_PATH
+	echo "_APPLICATION_DATA_PATH=\"$_APPLICATION_DATA_PATH\"" >>$_APPLICATION_METADATA_PATH
+	echo "_APPLICATION_CONFIG_PATH=\"$_APPLICATION_CONFIG_PATH\"" >>$_APPLICATION_METADATA_PATH
+	echo "_APPLICATION_GIT_URL=\"$_APPLICATION_GIT_URL\"" >>$_APPLICATION_METADATA_PATH
 
-    # copied from auto-update.sh (TODO: import)
-    _TIMESTAMP_FORMAT="+%Y%m%d%H%M%S"
-    echo $(date $_TIMESTAMP_FORMAT) > $_APPLICATION_LAST_UPDATE_DATE_PATH
+	# copied from auto-update.sh (TODO: import)
+	_TIMESTAMP_FORMAT="+%Y%m%d%H%M%S"
+	echo $(date $_TIMESTAMP_FORMAT) >$_APPLICATION_LAST_UPDATE_DATE_PATH
 }
 
 _inject() {
-    if [ -e .no-inject ]
-    then
-        echo "Not injecting values"
-        return
-    fi
+	if [ -e .no-inject ]; then
+		echo "Not injecting values"
+		return
+	fi
 
-    # ensure all executables automatically print help
-    $_GNU_SED -i "1 a . $_LIBRARY_PATH/install/help.sh" $_APPLICATION_TEMP_PATH/bin/*
+	# ensure all executables automatically setup debuggin
+	$_GNU_SED -i "1 a . $_LIBRARY_PATH/install/debug.sh" $_APPLICATION_TEMP_PATH/bin/* 2>/dev/null
+	# ensure all executables automatically print help
+	$_GNU_SED -i "1 a . $_LIBRARY_PATH/install/help.sh" $_APPLICATION_TEMP_PATH/bin/* 2>/dev/null
 
-    # ensure all executables auto-update
-    $_GNU_SED -i "1 a . $_LIBRARY_PATH/install/auto-update.sh" $_APPLICATION_TEMP_PATH/bin/*
+	# ensure all executables auto-update
+	$_GNU_SED -i "1 a . $_LIBRARY_PATH/install/auto-update.sh" $_APPLICATION_TEMP_PATH/bin/* 2>/dev/null
 
-    # ensure all executables refer to the .application configuration file (that are using these properties)
-    $_GNU_SED -i "1 a . $_LIBRARY_PATH/$_APPLICATION_NAME/.application" $_APPLICATION_TEMP_PATH/bin/*
+	# ensure all executables refer to the .application configuration file (that are using these properties)
+	$_GNU_SED -i "1 a . $_LIBRARY_PATH/$_APPLICATION_NAME/.application" $_APPLICATION_TEMP_PATH/bin/* 2>/dev/null
 
-    # ensure all executables use the standard logging framework
-    $_GNU_SED -i "1 a . $_LIBRARY_PATH/install/logging.sh" $_APPLICATION_TEMP_PATH/bin/*
+	# ensure all executables use the standard logging framework
+	$_GNU_SED -i "1 a . $_LIBRARY_PATH/install/logging.sh" $_APPLICATION_TEMP_PATH/bin/* 2>/dev/null
 }
 
 _install() {
-    # install help files
-    if [ -e $_APPLICATION_TEMP_PATH/help ]
-    then
-        mv $_APPLICATION_TEMP_PATH/help $_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME
-    fi
+	# install help files
+	if [ -e $_APPLICATION_TEMP_PATH/help ]; then
+		mv $_APPLICATION_TEMP_PATH/help $_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME
+	fi
 
-    # move modified artifacts to target
-    mkdir -p $_INSTALL_BIN_PATH
-    mv $_APPLICATION_TEMP_PATH/bin/* $_INSTALL_BIN_PATH
+	# move modified artifacts to target
+	mkdir -p $_INSTALL_BIN_PATH
+	mv $_APPLICATION_TEMP_PATH/bin/* $_INSTALL_BIN_PATH
 
-    if [ -e $_APPLICATION_TEMP_PATH/lib ] && [ "$(ls $_APPLICATION_TEMP_PATH/lib | wc -l)" -gt "0" ]
-    then
-        mkdir -p $_INSTALL_LIBRARY_PATH
-        mv $_APPLICATION_TEMP_PATH/lib/* $_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME
-    fi
+	if [ -e $_APPLICATION_TEMP_PATH/lib ] && [ "$(ls $_APPLICATION_TEMP_PATH/lib | wc -l)" -gt "0" ]; then
+		mkdir -p $_INSTALL_LIBRARY_PATH
+		mv $_APPLICATION_TEMP_PATH/lib/* $_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME
+	fi
 
-    if [ -e $_APPLICATION_TEMP_PATH/files ] && [ "$(ls $_APPLICATION_TEMP_PATH/files | wc -l)" -gt "0" ]
-    then
-        tar cpf - -C $_APPLICATION_TEMP_PATH/files . | tar xpf - -C $ROOT
-    fi
+	if [ -e $_APPLICATION_TEMP_PATH/files ] && [ "$(ls $_APPLICATION_TEMP_PATH/files | wc -l)" -gt "0" ]; then
+		tar cpf - -C $_APPLICATION_TEMP_PATH/files . | tar xpf - -C $ROOT
+	fi
 }
 
 _file_listing() {
-    cd $_APPLICATION_TEMP_PATH/bin
+	cd $_APPLICATION_TEMP_PATH/bin
 
-    # this should be renamed to .bin
-    find . -type f | sed -e "s/^\.\///" >> $_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME/.files
+	# this should be renamed to .bin
+	find . -type f | sed -e "s/^\.\///" >>$_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME/.files
 
-    cd $OLDPWD
+	cd $OLDPWD
 }
 
 _setup() {
-    if [ -e $_APPLICATION_TEMP_PATH/setup ]
-    then
-        # TODO: export all variables
-        export _SUDO_PROGRAM
-        find $_APPLICATION_TEMP_PATH/setup -type f -exec {} \;
-    fi
+	if [ -e $_APPLICATION_TEMP_PATH/setup ]; then
+		# TODO: export all variables
+		export _SUDO_PROGRAM
+		find $_APPLICATION_TEMP_PATH/setup -type f -exec {} \;
+	fi
 }
 
 _dependencies() {
-    if [ "$_APPLICATION_NAME" == "install" ]
-    then
-        return
-    fi
+	# if [ "$_APPLICATION_NAME" == "install" ]; then
+	# 	return
+	# fi
 
-    echo "$_APPLICATION_NAME - working on dependencies"
-    if [ -e dependencies ]
-    then
-        echo "Installing dependencies"
+	_OLD_WD=$(pwd)
 
-        # /usr/local/bin/grep
-        for _DEPENDENCY in $($_GNU_GREP -Pv "(^$|^#)" dependencies)
-        do
-            _setup_project $_DEPENDENCY
-        done
-    fi
+	echo "$_APPLICATION_NAME - working on dependencies"
+	if [ -e dependencies ]; then
+		for _DEPENDENCY in $($_GNU_GREP -Pv "(^$|^#)" dependencies); do
+			app-install $_DEPENDENCY
+		done
+	fi
+
+	cd $_OLD_WD
 }
 
 _local() {
-    if [ -n "$(git status --porcelain)" ]
-    then
-        echo "Working directory is dirty, please commit changes first"
-        exit 2
-    fi
+	if [ -n "$(git status --porcelain)" ]; then
+		echo "Working directory is dirty, please commit changes first"
+		exit 2
+	fi
 
-    _setup_project $PWD
+	_setup_project $PWD
 }
 
 _setup_project() {
-    _WORKDIR=$(mktemp -d)
+	_WORKDIR=$(mktemp -d)
 
-    cd $_WORKDIR
-    git clone $1
+	cd $_WORKDIR
+	git clone $1
 
-    cd $(basename $1 | sed -e "s/\\.git$//")
-    _APPLICATION_TEMP_PATH=$PWD
+	if [ $? -gt 0 ]; then
+		echo "Unable to clone project: $1"
+		exit 2
+	fi
 
-    _settings
+	cd $(basename $1 | sed -e "s/\\.git$//")
+	_APPLICATION_TEMP_PATH=$PWD
 
-    _sed_safe
-    _prepare_target
-    _update
+	if [ ! -e .app ]; then
+		echo ".app does NOT exist, is this an app?"
+		exit 3
+	fi
 
-    _metadata
-   
-    _inject
-    
-    _file_listing
-    _install
-    _setup
+	_settings
 
-    _dependencies
+	_sed_safe
+	_prepare_target
+	_update
 
-    echo "$_APPLICATION_NAME - Completed installation"
+	_metadata
 
-    cd /tmp
-    
-    rm -rf $_WORKDIR
+	_inject
+
+	_file_listing
+	_install
+	_dependencies
+	_setup
+
+	echo "$_APPLICATION_NAME - Completed installation"
+
+	cd /tmp
+
+	rm -rf $_WORKDIR
 }
 
-if [ "$#" -gt "0" ]
-then
-    for _APP in $@
-    do
-        _setup_project $_APP
-    done
+if [ "$#" -gt "0" ]; then
+	for _APP in $@; do
+		_setup_project $_APP
+	done
 else
-    _local
+	_local
 fi

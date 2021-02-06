@@ -7,8 +7,8 @@ _GNU_SED=gsed
 _GNU_GREP=/usr/local/bin/grep
 
 doLog() {
-    #echo $@
+	#echo $@
 
-    # syslog
-    logger -i -t $_APPLICATION_NAME $@
+	# syslog
+	logger -i -t $_APPLICATION_NAME $@
 }

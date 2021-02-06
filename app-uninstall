@@ -6,28 +6,25 @@ _CONFIGURATION_FILE=~/.config/walterjwhite/install
 
 . $_CONFIGURATION_FILE
 
-if [ "$#" -lt "1" ]
-then
-    echo "Application name to uninstall is required"
-    exit 1
+if [ "$#" -lt "1" ]; then
+	echo "Application name to uninstall is required"
+	exit 1
 fi
 
 _APPLICATION_NAME=$1
 shift
 
-if [ -n "$ROOT" ]
-then
-    _INSTALL_BIN_PATH=$ROOT/$_BIN_PATH
-    _INSTALL_LIBRARY_PATH=$ROOT/$_LIBRARY_PATH
+if [ -n "$ROOT" ]; then
+	_INSTALL_BIN_PATH=$ROOT/$_BIN_PATH
+	_INSTALL_LIBRARY_PATH=$ROOT/$_LIBRARY_PATH
 else
-    _ROOT=/
-    _INSTALL_BIN_PATH=$_BIN_PATH
-    _INSTALL_LIBRARY_PATH=$_LIBRARY_PATH
+	_ROOT=/
+	_INSTALL_BIN_PATH=$_BIN_PATH
+	_INSTALL_LIBRARY_PATH=$_LIBRARY_PATH
 fi
 
-for _BIN in $(cat $_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME/.files)
-do
-    rm -f $_INSTALL_BIN_PATH/$_BIN
+for _BIN in $(cat $_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME/.files); do
+	rm -f $_INSTALL_BIN_PATH/$_BIN
 done
 
 rm -Rf $_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME
