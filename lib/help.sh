@@ -1,15 +1,19 @@
 #!/bin/sh
 
+_print_help() {
+	if [ -e $1 ]; then
+		cat $1
+		echo ""
+	fi
+}
+
 for _ARG in $@; do
 	case $_ARG in
 	-h | --help)
-		_HELP_FILE=$_LIBRARY_PATH/$_APPLICATION_NAME/help/$(basename $0)
+		_print_help $_LIBRARY_PATH/install/help/default
+		_print_help $_LIBRARY_PATH/$_APPLICATION_NAME/help/$(basename $0)
 
-		if [ -e $_HELP_FILE ]; then
-			cat $_HELP_FILE
-			exit 0
-		fi
-
+		exit 0
 		;;
 	esac
 done
