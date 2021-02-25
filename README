@@ -1,0 +1,9 @@
+# install helper
+# if your organization performs MITM, pass -k (insecure SSL) flag
+# _OPTIONS="-k"
+
+# set your bin path
+_BIN_PATH=~/bin
+
+curl $_OPTIONS https://raw.githubusercontent.com/walterjwhite/install/master/app-install -o $_BIN_PATH/app-install
+curl $_OPTIONS https://raw.githubusercontent.com/walterjwhite/install/master/app-uninstall -o $_BIN_PATH/app-uninstall
