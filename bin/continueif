@@ -1,11 +1,19 @@
 #!/bin/sh
 
 clear
-echo -e "$1: Y/n"
+warn "$1: $2"
+
+_DEFAULT=$(echo $2 | awk -F'/' {'print$1'})
+
 read _PROCEED
 clear
 
-if [ ! "$_PROCEED" = "Y" ]; then
+if [ -z "$_PROCEED" ]; then
+	warn "No user input entered, using default ($_DEFAULT)"
+	_PROCEED=$_DEFAULT
+fi
+
+if [ $_PROCEED = "n" ]; then
 	exit 1
 fi
 

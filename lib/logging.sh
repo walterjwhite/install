@@ -49,7 +49,7 @@ _read_if() {
 
 _() {
 	if [ -z "$_DRY_RUN" ]; then
-		$@
+		"$@"
 
 		local _exitStatus=$?
 		if [ "$_exitStatus" -gt "0" ]; then
@@ -60,7 +60,7 @@ _() {
 			fi
 		fi
 	else
-		echo $@
+		info "$@"
 	fi
 }
 

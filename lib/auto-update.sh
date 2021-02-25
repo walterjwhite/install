@@ -57,13 +57,8 @@ _is_check() {
 
 _update() {
 	if [ -z "$_AUTO_UPDATE" ]; then
-		# TODO: use continueif
-		warn "($_APPLICATION_NAME) $_LATEST_APPLICATION_VERSION is available ($_INSTALLED_APPLICATION_VERSION), upgrade Y/n?"
-		read _UPGRADE
-
-		if [ "$_UPGRADE" != "n" ]; then
-			_do_update
-		fi
+		_ continueif "($_APPLICATION_NAME) $_LATEST_APPLICATION_VERSION is available ($_INSTALLED_APPLICATION_VERSION), upgrade" "Y/n"
+		_do_update
 	else
 		_do_update
 	fi
