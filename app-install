@@ -11,9 +11,14 @@ fi
 
 . $_CONFIGURATION_FILE
 
+# TODO: export all variables
+export _SUDO_PROGRAM
+
 if [ -n "$ROOT" ]; then
 	_INSTALL_BIN_PATH=$ROOT/$_BIN_PATH
 	_INSTALL_LIBRARY_PATH=$ROOT/$_LIBRARY_PATH
+
+	export ROOT
 else
 	ROOT=/
 	_INSTALL_BIN_PATH=$_BIN_PATH
@@ -104,6 +109,9 @@ _inject() {
 
 	# ensure all executables use the standard logging framework
 	$_GNU_SED -i "1 a . $_LIBRARY_PATH/install/logging.sh" $_APPLICATION_TEMP_PATH/bin/* 2>/dev/null
+
+	# ensure all executables have a locking mechanism available
+	$_GNU_SED -i "1 a . $_LIBRARY_PATH/install/lock.sh" $_APPLICATION_TEMP_PATH/bin/* 2>/dev/null
 }
 
 _install() {
@@ -137,8 +145,6 @@ _file_listing() {
 
 _setup() {
 	if [ -e $_APPLICATION_TEMP_PATH/setup ]; then
-		# TODO: export all variables
-		export _SUDO_PROGRAM
 		find $_APPLICATION_TEMP_PATH/setup -type f -exec {} \;
 	fi
 }

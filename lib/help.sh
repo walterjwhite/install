@@ -8,6 +8,8 @@ _print_help() {
 }
 
 for _ARG in $@; do
+	debug $_ARG
+
 	case $_ARG in
 	-h | --help)
 		_print_help $_LIBRARY_PATH/install/help/default

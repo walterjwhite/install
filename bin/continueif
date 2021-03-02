@@ -1,15 +1,12 @@
 #!/bin/sh
 
 clear
-warn "$1: $2"
 
-_DEFAULT=$(echo $2 | awk -F'/' {'print$1'})
-
-read _PROCEED
+_read_if "$1" _PROCEED "$2"
 clear
 
 if [ -z "$_PROCEED" ]; then
-	warn "No user input entered, using default ($_DEFAULT)"
+	_DEFAULT=$(echo $2 | awk -F'/' {'print$1'})
 	_PROCEED=$_DEFAULT
 fi
 
