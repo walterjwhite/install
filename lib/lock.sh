@@ -1,18 +1,18 @@
 #!/bin/sh
 
-trap _cleanup 0 1 2 INT
+trap _unlock 0 1 2 INT
 
-# @TODO: this only supports a single user
-_LOCKFILE=/tmp/$(basename $0).lock
+_LOCKFILE=/tmp/$(whoami)/$(basename $0).lock
 
 _lock() {
 	if [ -e $_LOCKFILE ]; then
-		exitWithError "$_LOCKFILE exists, sleeping" 5
+		exitWithError "$_LOCKFILE exists" 5
 	fi
 
+	mkdir -p $(dirname $_LOCKFILE)
 	touch $_LOCKFILE
 }
 
-_cleanup() {
+_unlock() {
 	rm -f $_LOCKFILE
 }

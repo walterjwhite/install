@@ -1,9 +1,8 @@
 #!/bin/sh
 
-if [ -e .app ]
-then
-    # make executables executable
-    chmod +x bin/* setup/* .git-template/hooks/* .git-template/system-hooks/*/* 2>/dev/null
+if [ -e .app ]; then
+	# make executables executable
+	chmod +x bin/* setup/* .git-template/hooks/* .git-template/system-hooks/*/* 2>/dev/null
 
-    format
+	format
 fi

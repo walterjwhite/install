@@ -29,6 +29,10 @@ _is_check() {
 		return 1
 	fi
 
+	if [ $_NON_INTERACTIVE -gt 0 ]; then
+		return 0
+	fi
+
 	_LAST_UPDATED=$(cat $_LAST_UPDATE_DATE_PATH)
 	case $_CHECK_FREQUENCY in
 	daily)
@@ -57,7 +61,7 @@ _is_check() {
 
 _update() {
 	if [ -z "$_AUTO_UPDATE" ]; then
-		_ continueif "($_APPLICATION_NAME) $_LATEST_APPLICATION_VERSION is available ($_INSTALLED_APPLICATION_VERSION), upgrade" "Y/n"
+		_continueif "($_APPLICATION_NAME) $_LATEST_APPLICATION_VERSION is available ($_INSTALLED_APPLICATION_VERSION), upgrade" "Y/n"
 		_do_update
 	else
 		_do_update

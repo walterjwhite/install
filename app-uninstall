@@ -23,8 +23,10 @@ else
 	_INSTALL_LIBRARY_PATH=$_LIBRARY_PATH
 fi
 
-for _BIN in $(cat $_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME/.files); do
-	rm -f $_INSTALL_BIN_PATH/$_BIN
-done
+if [ -e $_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME/.files ]; then
+	for _BIN in $(cat $_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME/.files); do
+		rm -f $_INSTALL_BIN_PATH/$_BIN
+	done
+fi
 
 rm -Rf $_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME

@@ -122,7 +122,9 @@ _install() {
 
 	# move modified artifacts to target
 	mkdir -p $_INSTALL_BIN_PATH
-	mv $_APPLICATION_TEMP_PATH/bin/* $_INSTALL_BIN_PATH
+	if [ -e $_APPLICATION_TEMP_PATH/bin/ ]; then
+		mv $_APPLICATION_TEMP_PATH/bin/* $_INSTALL_BIN_PATH
+	fi
 
 	if [ -e $_APPLICATION_TEMP_PATH/lib ] && [ "$(ls $_APPLICATION_TEMP_PATH/lib | wc -l)" -gt "0" ]; then
 		mkdir -p $_INSTALL_LIBRARY_PATH
@@ -135,12 +137,14 @@ _install() {
 }
 
 _file_listing() {
-	cd $_APPLICATION_TEMP_PATH/bin
+	if [ -e $_APPLICATION_TEMP_PATH/bin/ ]; then
+		cd $_APPLICATION_TEMP_PATH/bin
 
-	# this should be renamed to .bin
-	find . -type f | sed -e "s/^\.\///" >>$_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME/.files
+		# this should be renamed to .bin
+		find . -type f | sed -e "s/^\.\///" >>$_INSTALL_LIBRARY_PATH/$_APPLICATION_NAME/.files
 
-	cd $OLDPWD
+		cd $OLDPWD
+	fi
 }
 
 _setup() {

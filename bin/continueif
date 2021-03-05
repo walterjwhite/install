@@ -11,7 +11,7 @@ if [ -z "$_PROCEED" ]; then
 fi
 
 if [ $_PROCEED = "n" ]; then
-	exit 1
+	exitWithError "Aborting" 1
 fi
 
-exit 0
+exitSuccess "Continuing"

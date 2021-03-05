@@ -1,13 +1,7 @@
 #!/bin/sh
 
-tty -s
-_SCRIPT=$?
-#if [[ $- != *i* ]]; then
-#	# Shell is non-interactive.
-#	_SCRIPT=1
-#else
-#	_SCRIPT=0
-#fi
+tty >/dev/null
+_NON_INTERACTIVE=$?
 
 optionalInclude() {
 	if [ -e $1 ]; then
@@ -20,48 +14,48 @@ optionalInclude() {
 exitWithError() {
 	_ERROR=$2
 
-	if [ $_SCRIPT -eq 0 ]; then
+	if [ $_NON_INTERACTIVE -eq 0 ]; then
 		echo >&2 -e "\e[1;31m$1\e[0m"
 	else
-		echo "ERROR: $1"
+		logger -i -t "ERR($0): $1"
 	fi
 
 	exit $2
 }
 
 exitSuccess() {
-	if [ $_SCRIPT -eq 0 ]; then
+	if [ $_NON_INTERACTIVE -eq 0 ]; then
 		echo -e "\e[1;32m$1\e[0m"
 	else
-		echo "SUCCESS: $1"
+		logger -i -t "SCS($0): $1"
 	fi
 
 	exit 0
 }
 
 warn() {
-	if [ $_SCRIPT -eq 0 ]; then
+	if [ $_NON_INTERACTIVE -eq 0 ]; then
 		echo >&2 -e "\e[1;33m$1\e[0m"
 	else
-		echo "WARN: $1"
+		logger -i -t "WRN($0): $1"
 	fi
 }
 
 info() {
-	if [ $_SCRIPT -eq 0 ]; then
+	if [ $_NON_INTERACTIVE -eq 0 ]; then
 		echo >&2 -e "\e[1;36m$1\e[0m"
 	else
-		echo "INFO: $1"
+		logger -i -t "INF($0): $1"
 	fi
 }
 
 _DATE_FORMAT="%Y/%m/%d %H:%M:%S"
 debug() {
 	if [ -n "$_DEBUG" ]; then
-		if [ $_SCRIPT -eq 0 ]; then
+		if [ $_NON_INTERACTIVE -eq 0 ]; then
 			echo >&2 -e "$(date "+$_DATE_FORMAT") \e[35m$1\e[0m"
 		else
-			echo "DEBUG: $1"
+			logger -i -t "DBG($0): $1"
 		fi
 	fi
 }
@@ -73,7 +67,7 @@ _require() {
 }
 
 _read_if() {
-	if [ $_SCRIPT -eq 0 ]; then
+	if [ $_NON_INTERACTIVE -eq 0 ]; then
 		echo >&2 -e "\e[1;3;34m${1}\e[0m ${3}"
 		read $2
 	else
