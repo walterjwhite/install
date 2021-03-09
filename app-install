@@ -154,14 +154,15 @@ _setup() {
 }
 
 _dependencies() {
-	# if [ "$_APPLICATION_NAME" == "install" ]; then
-	# 	return
-	# fi
-
 	_OLD_WD=$(pwd)
 
 	echo "$_APPLICATION_NAME - working on dependencies"
 	if [ -e dependencies ]; then
+		if [ -z "$_MIRROR_URL" ]; then
+			echo "_MIRROR_URL is required: eg. ssh://github.com/walterjwhite"
+			exit 5
+		fi
+
 		for _DEPENDENCY in $($_GNU_GREP -Pv "(^$|^#)" dependencies); do
 			app-install $_DEPENDENCY
 		done
