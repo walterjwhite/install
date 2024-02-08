@@ -1,0 +1,17 @@
+#!/bin/sh
+
+import install/common.sh
+import publish/publish.sh
+import install/git.sh
+import network.sh
+import file.sh
+
+_online || _error "Not connected to the Internet"
+_has_other_instances && _error "Other instance of $0 running"
+
+if [ ! -e .app ]; then
+	_app_publish_recursive
+	exit $?
+fi
+
+_app_publish_instance

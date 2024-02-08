@@ -1,0 +1,31 @@
+#!/bin/sh
+
+import git:git/project.directory.sh
+
+_git-is-clean || {
+	gss
+	_error "Working directory is dirty"
+}
+
+_get_project_directory
+
+_cleanup_remote() {
+	if [ -n "$_WORK_PATH" ]; then
+		_info "Cleaning up $_WORK_PATH"
+		ssh $_INSTALL_REMOTE rm -rf $_WORK_PATH
+	fi
+}
+
+_require "$_INSTALL_REMOTE" _INSTALL_REMOTE
+_require "$_CONSOLE_CONTEXT_ID" _CONSOLE_CONTEXT_ID
+
+_WORK_PATH=/tmp/$_CONSOLE_CONTEXT_ID
+
+_info "Copying contents to $_INSTALL_REMOTE"
+ssh $_INSTALL_REMOTE "rm -rf $_WORK_PATH && mkdir -p $_WORK_PATH"
+tar cp -C $_PROJECT_PATH . | ssh $_INSTALL_REMOTE tar xp -C $_WORK_PATH
+
+_defer _cleanup_remote
+
+_info "Logging into $_INSTALL_REMOTE"
+ssh -t $_INSTALL_REMOTE "cd $_WORK_PATH; exec \$SHELL -l"

@@ -1,0 +1,6 @@
+#!/bin/sh
+
+_require "$1" "Expecting executable / script to run on remote"
+
+prepare-remote
+"$@"
