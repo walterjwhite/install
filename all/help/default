@@ -1,0 +1,35 @@
+    -h print help
+    -d enable debug
+
+    -w=<PID>
+        wait for PID to complete prior to starting
+    
+    -conf-install_log-level=0-5     set log level 0 (TRACE)
+        1 DEBUG
+        2 INFO
+        3 DETAIL
+        4 WARN
+        5 ERROR
+        6 ALERT
+    
+    -conf-install_context=testing
+        set the context to testing
+
+        _CONF_INSTALL_CONTEXT=testing
+
+    NOTE: arguments are listed in the order they are processed
+        -h must be first, program prints help and exits immediately
+        -d if enabled, must be listed prior to other options, if listed later, it will be excluded
+        -w must be listed after debug
+
+    All configuration items may be configured as such
+        _CONF_[APPLICATION_NAME]_[CONFIGURATION_KEY] -> --[application-name]-[configuration-key]= on the command line
+
+        If the current running application is install, and we want to configure the install configuration item, log level, we can simply pass:
+            -conf-log-level=0
+        
+        If the current running application is different than the target application configuration item, then we need to specify it:
+            -conf-install_log-level=0
+
+    Please refer to .conf for a complete listing of configuration items for each project.
+    All projects inherit from the install configuration.
