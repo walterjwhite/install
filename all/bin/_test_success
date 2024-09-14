@@ -1,0 +1,3 @@
+#!/bin/sh
+
+_success "Testing success message"

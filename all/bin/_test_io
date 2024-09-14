@@ -1,0 +1,6 @@
+#!/bin/sh
+
+import {{_PLATFORM_}}iostat.sh
+
+_info "Collecting io information ..."
+_io
