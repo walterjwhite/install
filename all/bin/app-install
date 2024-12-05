@@ -1,0 +1,44 @@
+#!/bin/sh
+
+import install
+import uninstall.sh
+
+import file.sh
+import network.sh
+import sed.sh
+
+_APP_INSTALLATION=0
+_APP_INSTALL_SELF=$(readlink -f $0)
+_APPLICATION_INSTALL_DATE=$(date)
+
+[ -z "$_INSTALL_BIN_PATH" ] && _settings_init
+
+_online || _error "Not connected to the Internet"
+
+if [ -z "$_DEPENDENCY" ]; then
+	_has_other_instances && _error "Other instance of $0 running"
+fi
+
+if [ $_CONF_INSTALL_AUTO_UPDATE_PACKAGES -gt 0 ]; then
+	_package_update
+fi
+
+if [ $# -eq 0 ]; then
+	_is_app
+
+	_TARGET_APPLICATION_NAME=$(basename $PWD)
+	_info "Installing $_TARGET_APPLICATION_NAME"
+	_setup_project
+
+	exit 0
+else
+	if [ -z "$*" ]; then
+		_error "Not an app and no apps were specified"
+	fi
+fi
+
+_info "Installing $*"
+
+for _TARGET_APPLICATION_NAME in "$@"; do
+	_setup_project
+done

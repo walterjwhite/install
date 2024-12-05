@@ -1,0 +1,2 @@
+_CONF_INSTALL_CRONTAB_ROOT_PATH=/bin:/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin:/usr/local/sbin:/opt/bin
+_CONF_INSTALL_CRONTAB_USER_PATH=PATH=/usr/local/bin:/usr/bin:/bin:/opt/bin

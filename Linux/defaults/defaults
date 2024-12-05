@@ -1,0 +1,19 @@
+_PLATFORM="Linux"
+
+: ${_CONF_INSTALL_GNU_GREP:=grep}
+: ${_CONF_INSTALL_GNU_SED:=sed}
+
+_ARCHITECTURE=$(uname -m)
+
+_SUDO_CMD="sudo"
+
+_PLATFORM_PACKAGES="git expect curl"
+_NPM_PACKAGE="node"
+_RUST_PACKAGE="rust"
+
+_PYPI_PACKAGE="python"
+
+_GO_PACKAGE="go"
+
+: ${_CONF_INSTALL_SUDO_BEEP_TONE:=L32aL8fL32c}
+_CONF_INSTALL_STAT_ARGUMENTS='-f %OLp'

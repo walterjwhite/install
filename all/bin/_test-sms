@@ -1,0 +1,4 @@
+#!/bin/sh
+_REQUIRED_ARGUMENTS="_MOBILE_CARRIER:mobile carrier (TMobile, ATT, Verizon)|_MOBILE_PHONE_NUMBER:mobile phone number|_SUBJECT:message subject|_MESSAGE:message"
+
+_sms "$_MOBILE_CARRIER" "$_MOBILE_PHONE_NUMBER" "$_SUBJECT" "$_MESSAGE"

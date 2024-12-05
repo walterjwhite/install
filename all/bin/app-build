@@ -1,0 +1,13 @@
+#!/bin/sh
+
+import build
+import install/common.sh
+import install/git.sh
+import install/settings.sh
+import file.sh
+import sed.sh
+
+_has_other_instances && _error "Other instance of $0 running"
+
+_SED_LIBRARY_PATH=$(_sed_safe $_CONF_INSTALL_LIBRARY_PATH)
+_app_build

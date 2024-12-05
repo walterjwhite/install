@@ -1,0 +1,6 @@
+#!/bin/sh
+
+if [ -n "$_TEST_FAILURE" ]; then
+	printf '%s\n' "Simulating some other failure"
+	exit 1
+fi

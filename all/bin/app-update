@@ -1,0 +1,19 @@
+#!/bin/sh
+
+_app_update_update_all() {
+	for _APPLICATION in $(basename $(find $_CONF_INSTALL_LIBRARY_PATH -maxdepth 2 -name .metadata ! -path '*/install/*' | sed -e 's/\/.metadata$//')); do
+		_app_update_update
+	done
+}
+
+_app_update_update() {
+	app-install $_APPLICATION
+}
+
+if [ $# -eq 0 ]; then
+	_app_update_update_all
+else
+	for _APPLICATION in "$@"; do
+		_app_update_update
+	done
+fi

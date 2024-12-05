@@ -1,0 +1,14 @@
+#!/bin/sh
+_REQUIRED_ARGUMENTS="_SOURCE_DIRECTORY:The source directory containing files|_TARGET_DIRECTORY:The path to copy files to|_TARGET_FILE_COPY_APPLICATION_NAME:The application name to record the files under"
+
+import sed.sh
+
+_SED_SAFE_PREFIX=$(_sed_safe $_SOURCE_DIRECTORY)
+_SED_SAFE_TARGET=$(_sed_safe $_TARGET_DIRECTORY)
+
+_info "Installing $_SOURCE_DIRECTORY to $_TARGET_DIRECTORY"
+
+_sudo mkdir -p "$_TARGET_DIRECTORY"
+_sudo tar -cp $_TAR_ARGS -C "$_SOURCE_DIRECTORY" . | _sudo tar -xp $_TAR_ARGS -C "$_TARGET_DIRECTORY" && {
+	find "$_SOURCE_DIRECTORY" ! -type d | sed -e "s/$_SED_SAFE_PREFIX/$_SED_SAFE_TARGET/" | _sudo tee -a $_CONF_INSTALL_LIBRARY_PATH/$_TARGET_FILE_COPY_APPLICATION_NAME/.files >/dev/null
+}

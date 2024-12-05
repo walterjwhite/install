@@ -1,0 +1,14 @@
+#!/bin/sh
+
+_REQUIRED_ARGUMENTS="_APPLICATIONS:Applications to remove"
+
+import uninstall.sh
+import install/settings.sh
+import install/module
+import file.sh
+
+_settings_init
+
+for _TARGET_APPLICATION_NAME in "$_APPLICATIONS"; do
+	_uninstall
+done

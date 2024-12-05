@@ -1,0 +1,11 @@
+which pgrep >/dev/null 2>&1 && _PARENT_PROCESSES_FUNCTION=_parent_processes_pgrep
+
+_DETECTED_PLATFORM=$(uname)
+case $_DETECTED_PLATFORM in
+	Darwin)
+		_DETECTED_PLATFORM=Apple
+		;;
+	MINGW64_NT-*)
+		_DETECTED_PLATFORM=Windows
+		;;
+esac

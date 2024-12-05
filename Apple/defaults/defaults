@@ -1,0 +1,24 @@
+_PLATFORM="Apple"
+
+_TAR_ARGS=" -f - "
+_SUDO_CMD="sudo"
+
+_ARCHITECTURE=$(uname -m)
+
+_INSTALL_INSTALLER=homebrew
+
+: ${_CONF_INSTALL_GNU_SED:=/opt/homebrew/bin/gsed}
+: ${_CONF_INSTALL_GNU_GREP:=/opt/homebrew/opt/grep/libexec/gnubin/grep}
+
+_PLATFORM_PACKAGES="git coreutils gnu-sed grep expect mas-cli/tap/mas"
+_NPM_PACKAGE="node"
+_RUST_PACKAGE="rust"
+_PYPI_PACKAGE="python"
+_GO_PACKAGE="go"
+
+: ${_CONF_INSTALL_APPLE_BEEP_MESSAGE:=beep}
+: ${_CONF_INSTALL_APPLE_SUDO_PRECMD_MESSAGE:=Please enter your sudo credentials}
+
+: ${_CONF_INSTALL_HOMEBREW_CMD:=/opt/homebrew/bin/brew}
+
+_CONF_INSTALL_STAT_ARGUMENTS='-f %OLp'
